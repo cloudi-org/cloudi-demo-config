@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: pipeline-run-prod-build
+  name: pipeline-run-prod-build
+  labels:
+    tekton.dev/pipeline: pipeline-prod-build 
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: pipeline-java-app-build
+  params:
+    - name: context-dir
+      value: .
+    - name: image-name
+      value: image-registry.openshift-image-registry.svc:5000/cloudi/build
+    - name: github-repo-url
+      value: https://github.com/cloudi-org/cloudi-demo-app-build
+    - name: kn-service-name
+      value: cloudi-demo-app-build-service
+    - name: github-repo-revision
+      value: main
+  workspaces:
+    - name: maven-settings
+      configmap:
+        name: maven-settings
+    - name: source
+      persistentVolumeClaim:
+        claimName: build-sources
