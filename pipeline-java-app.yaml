@@ -4,7 +4,7 @@ metadata:
   name: pipeline-java-app
 spec:
   description: >-
-    The Pipline to buld and deploy the Java app https://github.com/geekmee/cloudi/app/build as Knative Service.
+    The Pipline to buld and deploy the Java app as Knative Service.
   params:
     - name: image-name #<.>
       description: The fully qualified image name
