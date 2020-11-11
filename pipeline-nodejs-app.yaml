@@ -1,0 +1,72 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-nodejs-app
+spec:
+  description: >-
+    The Pipline to buld and deploy the nodejs app as Knative Service.
+  params:
+    - name: image-name #<.>
+      description: The fully qualified image name
+      default: image-registry.openshift-image-registry.svc:5000/cloudi/version
+    - name: context-dir
+      description: >-
+        image build from
+      default: .
+    - name: kn-service-name
+      description: The Knative Service name
+      default: cloudi-demo-app-version-service
+    - name: github-repo-url
+      description: The GitHub Repo of the Java Application
+      default: https://github.com/cloudi-org/cloudi-demo-version
+    - name: github-repo-revision
+      description: The GitHub revision to use
+      default: main
+  workspaces:
+    - name: source #<.>
+    - name: maven-settings #<.>
+  tasks:
+    - name: clone-sources
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.github-repo-url)
+        - name: revision
+          value: $(params.github-repo-revision)
+        # just to do a fresh clone, as we already have the directory cloned
+        # to reuse it we can exlude this step
+        - name: deleteExisting
+          value: 'true'
+      workspaces:
+        - name: output
+          workspace: source
+    - name: build-nodejs-app-image
+      taskRef:
+        name: buildah
+      runAfter:
+        - clone-sources
+      params:
+        - name: CONTEXT
+          value: '$(params.context-dir)'
+        - name: IMAGE
+          value: '$(params.image-name)'
+        # since pushing to internal registry we skip TLS verify
+        - name: TLSVERIFY
+          value: 'false'
+      workspaces:
+        - name: source
+          workspace: source
+    - name: deploy-kn-service
+      taskRef:
+        name: kn
+      runAfter:
+        - build-nodejs-app-image
+      params:
+        - name: ARGS
+          value:
+            - 'service'
+            - 'create'
+            - '$(params.kn-service-name)'
+            - '--force'
+            - '--image=$(params.image-name)@$(tasks.build-nodejs-app-image.results.IMAGE_DIGEST)' #<.>
