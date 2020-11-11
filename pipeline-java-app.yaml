@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: pipeline-java-app-build
+  name: pipeline-java-app
 spec:
   description: >-
     The Pipline to buld and deploy the Java app https://github.com/geekmee/cloudi/app/build as Knative Service.

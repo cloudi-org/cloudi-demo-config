@@ -1,14 +1,14 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: pipeline-run-prod-build
-  name: pipeline-run-prod-build
+  generateName: pipeline-java-app-run-prodBuild
+  name: pipeline-java-app-run-prodBuild
   labels:
-    tekton.dev/pipeline: pipeline-prod-build 
+    tekton.dev/pipeline: pipeline-java-app-run-prodBuild
 spec:
   serviceAccountName: pipeline
   pipelineRef:
-    name: pipeline-java-app-build
+    name: pipeline-java-app
   params:
     - name: context-dir
       value: .
