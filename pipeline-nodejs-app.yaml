@@ -24,7 +24,6 @@ spec:
       default: main
   workspaces:
     - name: source #<.>
-    - name: maven-settings #<.>
   tasks:
     - name: clone-sources
       taskRef:
